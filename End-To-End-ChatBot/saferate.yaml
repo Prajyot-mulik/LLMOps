@@ -1,0 +1,41 @@
+# saferate.yaml
+version: 1
+service:
+  name: streamlit-llm-app
+  owner: "prajyot"
+
+prompt:
+  system_file: "prompts/base_v1.md"
+  structured_file: "prompts/structured_v1.md"
+
+output_constraints:
+  max_chars: 8000
+  truncate_notice: "[Output truncated for readability.]"
+
+content_policy:
+  blocked_keywords:
+    - "self-harm"
+    - "suicide"
+    - "harm others"
+    - "make a bomb"
+    - "weapon"
+    - "illegal"
+    - "deepfake"
+    - "spread malware"
+
+guardrails:
+  structured_triggers:
+    - "how do i"
+    - "steps"
+    - "tutorial"
+    - "example"
+    - "code"
+    - "snippet"
+    - "script"
+
+observability_links:
+  app_path: ":8501"
+  prometheus_path: ":9090"
+  grafana_path: ":3000"
+  jaeger_path: ":16686"
+  metrics_path: ":9108"

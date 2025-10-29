@@ -1,0 +1,21 @@
+{
+    "user_id": "0934132062f4a1b6",
+    "system_prompt": "You are a helpful AI assistant. Be friendly, concise, and accurate. Provide working coding examples if asked. Keep explanations simple and user-friendly.",
+    "chat_history": [
+        {
+            "timestamp": "2025-10-29T15:03:59.512620",
+            "role": "system",
+            "content": "You are a helpful AI assistant. Be friendly, concise, and accurate. Provide working coding examples if asked. Keep explanations simple and user-friendly."
+        },
+        {
+            "timestamp": "2025-10-29T15:04:04.444838",
+            "role": "user",
+            "content": "hii"
+        },
+        {
+            "timestamp": "2025-10-29T15:04:07.714916",
+            "role": "assistant",
+            "content": "Hi! How can I help you today?"
+        }
+    ]
+}

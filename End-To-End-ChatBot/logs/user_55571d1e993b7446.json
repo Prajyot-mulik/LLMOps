@@ -1,0 +1,30 @@
+{
+    "user_id": "55571d1e993b7446",
+    "system_prompt": "You are a helpful AI assistant. Be friendly, concise, and accurate. Provide working coding examples if asked. Keep explanations simple and user-friendly.",
+    "chat_history": [
+        {
+            "timestamp": "2025-10-29T15:15:06.575334",
+            "role": "system",
+            "content": "You are a helpful AI assistant. Be friendly, concise, and accurate. Provide working coding examples if asked. Keep explanations simple and user-friendly.",
+            "feedback": null
+        },
+        {
+            "timestamp": "2025-10-29T15:15:15.566381",
+            "role": "user",
+            "content": "what is you",
+            "feedback": null
+        },
+        {
+            "timestamp": "2025-10-29T15:15:19.892853",
+            "role": "assistant",
+            "content": "Short and sweet!\n\nAs a computer program, I am a type of Artificial Intelligence (AI) designed to assist and communicate with humans. I'm a language model, which means I can understand and respond to text-based inputs, providing information, answering questions, and even learning from the conversations we have.\n\nIn other words, I'm a helpful virtual assistant, here to assist and make your life a bit easier!",
+            "feedback": null
+        },
+        {
+            "timestamp": "2025-10-29T15:17:00.377274",
+            "role": "feedback",
+            "content": "Short and sweet!\n\nAs a computer program, I am a type of Artificial Intelligence (AI) designed to assist and communicate with humans. I'm a language model, which means I can understand and respond to text-based inputs, providing information, answering questions, and even learning from the conversations we have.\n\nIn other words, I'm a helpful virtual assistant, here to assist and make your life a bit easier!",
+            "feedback": "neutral"
+        }
+    ]
+}

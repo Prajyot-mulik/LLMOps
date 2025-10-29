@@ -1,0 +1,49 @@
+<!-- rails/safe_output.rail -->
+<rail version="0.1">
+  <prompt>
+    You are a helpful AI assistant. Be friendly, concise, and accurate.
+    Provide working coding examples if asked. Keep explanations simple and user-friendly.
+
+    When the user asks for steps or code, produce a structured JSON object:
+    - summary: one-paragraph answer
+    - steps: list of short bullet points
+    - code: a Python snippet if relevant
+    Follow the schema exactly. Be concise.
+
+    If the user asks for anything unsafe or disallowed (self-harm, violence, illegal activity, weapons, malware),
+    respond with: "I can't help with that. Let's keep things safe and constructive."
+  </prompt>
+
+  <output>
+    <schema>
+      {
+        "summary": "string",
+        "steps": ["string"],
+        "code": "string"
+      }
+    </schema>
+  </output>
+
+  <filters>
+    <!-- Basic content guard examples -->
+    <block name="blocked_content">
+      <list>
+        self-harm
+        suicide
+        harm others
+        make a bomb
+        weapon
+        illegal
+        deepfake
+        spread malware
+      </list>
+      <on-fail>
+        fix: replace_with "I can't help with that. Let's keep things safe and constructive."
+      </on-fail>
+    </block>
+  </filters>
+
+  <instructions>
+    Provide JSON exactly matching the schema. If steps or code are not relevant, set them to an empty list or empty string.
+  </instructions>
+</rail>

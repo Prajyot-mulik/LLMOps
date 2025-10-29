@@ -1,0 +1,12 @@
+# promptfooconfig.yaml
+version: 1
+prompts:
+  - file: prompts/base_prompt.txt
+  
+providers:
+  - id: openrouter
+    label: openrouter-llama-3.1-8b
+    config:
+      apiKey: $OPENROUTER_API_KEY
+      model: meta-llama/llama-3.1-8b-instruct
+      baseUrl: https://openrouter.ai/api/v1
