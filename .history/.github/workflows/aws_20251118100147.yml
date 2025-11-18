@@ -12,7 +12,7 @@ env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: llmopsrepolive
   ECS_SERVICE: llmops-service
-  ECS_CLUSTER: llmops-live-cluster
+  ECS_CLUSTER: llmops-cluster
   ECS_TASK_DEFINITION: .github/workflows/task_defination.json
   CONTAINER_NAME: llmops-live-container
 
