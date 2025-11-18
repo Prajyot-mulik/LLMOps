@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MultiDocChat</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <style>
+    /* Enhanced 4D-like animations and visual effects */
+    :root {
+      --primary: #0060e1;
+      --primary-dark: #0048b0;
+      --primary-light: #4d8aff;
+      --accent: #ff6b6b;
+      --accent-glow: rgba(255, 107, 107, 0.4);
+      --depth-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+      --depth-2: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+      --depth-3: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+      --depth-4: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+      --depth-5: 0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);
+      --gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* 4D Parallax Background */
+    .parallax-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .parallax-layer {
+      position: absolute;
+      width: 120%;
+      height: 120%;
+      top: -10%;
+      left: -10%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+      animation: parallaxMove 20s infinite linear;
+    }
+
+    .parallax-layer:nth-child(2) {
+      animation-duration: 15s;
+      opacity: 0.7;
+      background: 
+        radial-gradient(circle at 60% 20%, rgba(120, 219, 255, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 10% 70%, rgba(255, 119, 198, 0.2) 0%, transparent 50%);
+    }
+
+    .parallax-layer:nth-child(3) {
+      animation-duration: 25s;
+      opacity: 0.5;
+      background: 
+        radial-gradient(circle at 80% 80%, rgba(120, 119, 198, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 30% 30%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+    }
+
+    @keyframes parallaxMove {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(-5%, -5%) rotate(1deg); }
+    }
+
+    header {
+      padding: 16px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 10;
+      box-shadow: var(--depth-1);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    main {
+      max-width: 900px;
+      margin: 32px auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Upload Section with 4D Effects */
+    #uploader {
+      perspective: 1000px;
+    }
+
+    #upload-form {
+      transform-style: preserve-3d;
+      animation: floatIn 0.8s ease-out;
+    }
+
+    @keyframes floatIn {
+      0% { 
+        opacity: 0;
+        transform: translateY(30px) rotateX(10deg);
+      }
+      100% { 
+        opacity: 1;
+        transform: translateY(0) rotateX(0);
+      }
+    }
+
+    #dropzone {
+      border: 2px dashed rgba(0, 94, 225, 0.4);
+      border-radius: 16px;
+      padding: 40px 28px;
+      text-align: center;
+      margin-bottom: 20px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--depth-2);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #dropzone::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: left 0.5s;
+    }
+
+    #dropzone.hover {
+      border-color: var(--primary);
+      background: rgba(0, 94, 225, 0.05);
+      box-shadow: var(--depth-3), 0 0 20px rgba(0, 94, 225, 0.2);
+      transform: translateY(-5px);
+    }
+
+    #dropzone.hover::before {
+      left: 100%;
+    }
+
+    #dropzone p {
+      margin: 8px 0;
+      font-size: 16px;
+      color: #555;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: var(--gradient);
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: var(--depth-1);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(rgba(255,255,255,0.2), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--depth-3);
+    }
+
+    .btn:hover::after {
+      opacity: 1;
+    }
+
+    button {
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: none;
+      background: var(--gradient);
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: var(--depth-1);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+
+    button:focus:not(:active)::after {
+      animation: ripple 1s ease-out;
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(40, 40);
+        opacity: 0;
+      }
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--depth-3);
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: var(--depth-1);
+    }
+
+    .hint {
+      font-size: 14px;
+      opacity: .8;
+      margin-left: 12px;
+      font-style: italic;
+    }
+
+    /* Chat Section with 4D Effects */
+    #chat {
+      transform-style: preserve-3d;
+      animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+      0% { 
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      100% { 
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .messages {
+      height: 480px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 16px;
+      padding: 20px;
+      overflow: auto;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--depth-2);
+      transform-style: preserve-3d;
+      perspective: 500px;
+    }
+
+    .bubble {
+      max-width: 80%;
+      padding: 16px 20px;
+      margin: 16px 0;
+      border-radius: 18px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      animation: messageAppear 0.4s ease-out;
+      transform-origin: bottom;
+      box-shadow: var(--depth-1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes messageAppear {
+      0% { 
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+      }
+      100% { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .bubble.user {
+      margin-left: auto;
+      background: var(--gradient);
+      color: white;
+      border-bottom-right-radius: 6px;
+    }
+
+    .bubble.assistant {
+      margin-right: auto;
+      background: rgba(255, 255, 255, 0.9);
+      color: #111827;
+      border-bottom-left-radius: 6px;
+      box-shadow: var(--depth-1);
+    }
+
+    .bubble::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .composer {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      align-items: flex-end;
+      transform-style: preserve-3d;
+    }
+
+    #message-input {
+      flex: 1;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(5px);
+      box-shadow: var(--depth-1);
+      font-family: inherit;
+      font-size: 16px;
+      resize: none;
+      transition: all 0.3s ease;
+      transform: translateZ(10px);
+    }
+
+    #message-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: var(--depth-2), 0 0 0 3px rgba(0, 94, 225, 0.1);
+      transform: translateZ(20px);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 30px;
+      transform: translateX(-50%) translateZ(50px);
+      background: rgba(17, 24, 39, 0.9);
+      color: white;
+      padding: 14px 24px;
+      border-radius: 12px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      box-shadow: var(--depth-4);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    /* Loading animations */
+    #indexing, #thinking {
+      position: relative;
+      padding-left: 24px;
+    }
+
+    #indexing::before, #thinking::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      border: 2px solid transparent;
+      border-top: 2px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: translateY(-50%) rotate(0deg); }
+      100% { transform: translateY(-50%) rotate(360deg); }
+    }
+
+    /* Scrollbar styling */
+    .messages::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .messages::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 4px;
+    }
+
+    .messages::-webkit-scrollbar-thumb {
+      background: rgba(0, 94, 225, 0.3);
+      border-radius: 4px;
+    }
+
+    .messages::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 94, 225, 0.5);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      main {
+        margin: 20px auto;
+        padding: 0 16px;
+      }
+      
+      .messages {
+        height: 400px;
+      }
+      
+      .bubble {
+        max-width: 90%;
+      }
+      
+      .composer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      #send-btn {
+        align-self: flex-end;
+        margin-top: 10px;
+      }
+    }
+  </style>
+  <script>
+    const $ = (sel) => document.querySelector(sel);
+    let sessionId = localStorage.getItem('mdc_session_id') || '';
+
+    async function uploadFiles(evt) {
+      evt.preventDefault();
+      const input = $('#file-input');
+      const files = input.files;
+      if (!files || files.length === 0) {
+        toast('Please choose at least one file');
+        return;
+      }
+      toggleIndexing(true);
+      try {
+        const fd = new FormData();
+        for (const f of files) fd.append('files', f);
+        const res = await fetch('/upload', { method: 'POST', body: fd });
+        if (!res.ok) throw new Error((await res.json()).detail || 'Upload failed');
+        const data = await res.json();
+        sessionId = data.session_id;
+        localStorage.setItem('mdc_session_id', sessionId);
+        $('#chat').style.display = 'block';
+        toast('Indexing complete. You can chat now.');
+      } catch (e) {
+        console.error(e);
+        toast('Indexing failed. Try re-uploading.');
+      } finally {
+        toggleIndexing(false);
+      }
+    }
+
+    async function sendMessage() {
+      const input = $('#message-input');
+      const text = input.value.trim();
+      if (!sessionId) { toast('Please upload documents first.'); return; }
+      if (!text) { return; }
+      appendMessage('user', text);
+      input.value = '';
+      toggleThinking(true);
+      try {
+        const res = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: sessionId, message: text })
+        });
+        if (!res.ok) throw new Error((await res.json()).detail || 'Chat failed');
+        const data = await res.json();
+        appendMessage('assistant', data.answer);
+      } catch (e) {
+        console.error(e);
+        toast('Thinking failed. Try again.');
+      } finally {
+        toggleThinking(false);
+      }
+    }
+
+    function appendMessage(role, text) {
+      const container = $('#messages');
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble ' + (role === 'user' ? 'user' : 'assistant');
+      bubble.textContent = text;
+      container.appendChild(bubble);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function toggleIndexing(on) {
+      $('#upload-btn').disabled = on;
+      $('#indexing').style.display = on ? 'inline-block' : 'none';
+    }
+
+    function toggleThinking(on) {
+      $('#send-btn').disabled = on;
+      $('#thinking').style.display = on ? 'inline-block' : 'none';
+    }
+
+    function toast(msg) {
+      const el = $('#toast');
+      el.textContent = msg;
+      el.style.opacity = '1';
+      setTimeout(() => el.style.opacity = '0', 2500);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (sessionId) {
+        $('#chat').style.display = 'block';
+      }
+      $('#upload-form').addEventListener('submit', uploadFiles);
+      $('#send-btn').addEventListener('click', sendMessage);
+      $('#message-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+      });
+      const drop = $('#dropzone');
+      drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('hover'); });
+      drop.addEventListener('dragleave', () => drop.classList.remove('hover'));
+      drop.addEventListener('drop', (e) => {
+        e.preventDefault();
+        drop.classList.remove('hover');
+        $('#file-input').files = e.dataTransfer.files;
+      });
+    });
+  </script>
+  <meta name="color-scheme" content="light dark" />
+</head>
+<body>
+  <!-- 4D Parallax Background -->
+  <div class="parallax-bg">
+    <div class="parallax-layer"></div>
+    <div class="parallax-layer"></div>
+    <div class="parallax-layer"></div>
+  </div>
+
+  <header>
+    <h1>MultiDocChat</h1>
+  </header>
+
+  <main>
+    <section id="uploader">
+      <form id="upload-form">
+        <div id="dropzone">
+          <p>Drag and drop files here</p>
+          <p>or</p>
+          <label class="btn">
+            Choose files
+            <input id="file-input" type="file" name="files" multiple hidden />
+          </label>
+        </div>
+        <button id="upload-btn" type="submit">Upload & Index</button>
+        <span id="indexing" class="hint" style="display:none;">Indexing…</span>
+      </form>
+    </section>
+
+    <section id="chat" style="display:none;">
+      <div id="messages" class="messages"></div>
+      <div class="composer">
+        <textarea id="message-input" rows="2" placeholder="Ask about your documents…"></textarea>
+        <button id="send-btn">Send</button>
+        <span id="thinking" class="hint" style="display:none;">Thinking…</span>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+</body>
+</html>

@@ -14,33 +14,22 @@
             evt.preventDefault();
             const input = $('#file-input');
             const files = input.files;
-
             if (!files || files.length === 0) {
                 toast('Please choose at least one file');
                 return;
             }
-
             toggleIndexing(true);
-
             try {
                 const fd = new FormData();
                 for (const f of files) fd.append('files', f);
-
-                const res = await fetch('/upload', {
-                    method: 'POST',
-                    body: fd
-                });
-
+                const res = await fetch('/upload', { method: 'POST', body: fd });
                 if (!res.ok) throw new Error((await res.json()).detail || 'Upload failed');
-
                 const data = await res.json();
                 sessionId = data.session_id;
                 localStorage.setItem('mdc_session_id', sessionId);
-
                 $('#chat').style.display = 'block';
                 toast('Indexing complete. You can chat now.');
             } catch (e) {
-                console.error(e);
                 toast('Indexing failed. Try again.');
             } finally {
                 toggleIndexing(false);
@@ -50,7 +39,6 @@
         async function sendMessage() {
             const input = $('#message-input');
             const text = input.value.trim();
-
             if (!sessionId) {
                 toast('Please upload documents first.');
                 return;
@@ -67,14 +55,11 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ session_id: sessionId, message: text })
                 });
-
                 if (!res.ok) throw new Error((await res.json()).detail || 'Chat failed');
-
                 const data = await res.json();
                 appendMessage('assistant', data.answer);
             } catch (e) {
-                console.error(e);
-                toast('Thinking failed. Try again.');
+                toast('Thinking failed.');
             } finally {
                 toggleThinking(false);
             }
@@ -110,6 +95,7 @@
             if (sessionId) $('#chat').style.display = 'block';
 
             $('#upload-form').addEventListener('submit', uploadFiles);
+
             $('#send-btn').addEventListener('click', sendMessage);
 
             $('#message-input').addEventListener('keydown', (e) => {
@@ -119,87 +105,61 @@
                 }
             });
 
-            // **FILE PREVIEW FEATURE**
-            $('#file-input').addEventListener('change', function () {
-                const preview = $('#file-preview');
-                preview.innerHTML = '';
-                for (const file of this.files) {
-                    const div = document.createElement('div');
-                    div.className = 'file-item';
-                    div.textContent = file.name;
-                    preview.appendChild(div);
-                }
-                preview.style.display = 'block';
-            });
-
             const drop = $('#dropzone');
-            drop.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                drop.classList.add('hover');
-            });
+            drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('hover'); });
             drop.addEventListener('dragleave', () => drop.classList.remove('hover'));
             drop.addEventListener('drop', (e) => {
                 e.preventDefault();
                 drop.classList.remove('hover');
                 $('#file-input').files = e.dataTransfer.files;
-
-                // Update preview for drag-drop
-                const preview = $('#file-preview');
-                preview.innerHTML = '';
-                for (const f of e.dataTransfer.files) {
-                    const div = document.createElement('div');
-                    div.className = 'file-item';
-                    div.textContent = f.name;
-                    preview.appendChild(div);
-                }
-                preview.style.display = 'block';
             });
         });
     </script>
-
-    <meta name="color-scheme" content="light dark" />
 </head>
 
 <body>
-    <header>
-        <h1>MultiDocChat</h1>
+
+    <div id="bg-animation"></div>
+
+    <header class="glass-header neon-border">
+        <h1 class="title-glow">MultiDocChat</h1>
     </header>
 
     <main>
 
-        <section id="uploader">
+        <section id="uploader" class="glass-card floating">
             <form id="upload-form">
 
-                <div id="dropzone">
+                <div id="dropzone" class="drop-4d">
                     <p>Drag & Drop Files</p>
                     <p>or</p>
-
-                    <label class="btn">
-                        Choose Files
+                    <label class="btn-neon">
+                        Choose files
                         <input id="file-input" type="file" name="files" multiple hidden />
                     </label>
                 </div>
 
-                <!-- FILE PREVIEW ADDED -->
-                <div id="file-preview"></div>
+                <button id="upload-btn" class="btn-upload-neon" type="submit">
+                    Upload & Index
+                </button>
 
-                <button id="upload-btn" type="submit">Upload & Index</button>
-                <span id="indexing" class="hint" style="display:none;">Indexing…</span>
+                <span id="indexing" class="hint glow-text" style="display:none;">Indexing…</span>
             </form>
         </section>
 
-        <section id="chat" style="display:none;">
-            <div id="messages" class="messages"></div>
+        <section id="chat" class="glass-card floating" style="display:none;">
+            <div id="messages" class="messages-4d"></div>
 
             <div class="composer">
-                <textarea id="message-input" rows="2" placeholder="Ask about your documents…"></textarea>
-                <button id="send-btn">Send</button>
-                <span id="thinking" class="hint" style="display:none;">Thinking…</span>
+                <textarea id="message-input" rows="2" placeholder="Ask anything…"></textarea>
+                <button id="send-btn" class="btn-send-neon">Send</button>
+                <span id="thinking" class="hint glow-text" style="display:none;">Thinking…</span>
             </div>
         </section>
 
     </main>
 
-    <div id="toast" class="toast"></div>
+    <div id="toast" class="toast neon-border"></div>
+
 </body>
 </html>

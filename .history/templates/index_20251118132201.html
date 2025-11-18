@@ -41,7 +41,7 @@
                 toast('Indexing complete. You can chat now.');
             } catch (e) {
                 console.error(e);
-                toast('Indexing failed. Try again.');
+                toast('Indexing failed. Try re-uploading.');
             } finally {
                 toggleIndexing(false);
             }
@@ -55,6 +55,7 @@
                 toast('Please upload documents first.');
                 return;
             }
+
             if (!text) return;
 
             appendMessage('user', text);
@@ -119,19 +120,6 @@
                 }
             });
 
-            // **FILE PREVIEW FEATURE**
-            $('#file-input').addEventListener('change', function () {
-                const preview = $('#file-preview');
-                preview.innerHTML = '';
-                for (const file of this.files) {
-                    const div = document.createElement('div');
-                    div.className = 'file-item';
-                    div.textContent = file.name;
-                    preview.appendChild(div);
-                }
-                preview.style.display = 'block';
-            });
-
             const drop = $('#dropzone');
             drop.addEventListener('dragover', (e) => {
                 e.preventDefault();
@@ -142,17 +130,6 @@
                 e.preventDefault();
                 drop.classList.remove('hover');
                 $('#file-input').files = e.dataTransfer.files;
-
-                // Update preview for drag-drop
-                const preview = $('#file-preview');
-                preview.innerHTML = '';
-                for (const f of e.dataTransfer.files) {
-                    const div = document.createElement('div');
-                    div.className = 'file-item';
-                    div.textContent = f.name;
-                    preview.appendChild(div);
-                }
-                preview.style.display = 'block';
             });
         });
     </script>
@@ -166,22 +143,16 @@
     </header>
 
     <main>
-
         <section id="uploader">
             <form id="upload-form">
-
                 <div id="dropzone">
-                    <p>Drag & Drop Files</p>
+                    <p>Drag and drop files here</p>
                     <p>or</p>
-
                     <label class="btn">
-                        Choose Files
+                        Choose files
                         <input id="file-input" type="file" name="files" multiple hidden />
                     </label>
                 </div>
-
-                <!-- FILE PREVIEW ADDED -->
-                <div id="file-preview"></div>
 
                 <button id="upload-btn" type="submit">Upload & Index</button>
                 <span id="indexing" class="hint" style="display:none;">Indexing…</span>
@@ -197,7 +168,6 @@
                 <span id="thinking" class="hint" style="display:none;">Thinking…</span>
             </div>
         </section>
-
     </main>
 
     <div id="toast" class="toast"></div>

@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MultiDocChat - Enhanced</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #0060e1;
+            --primary-dark: #0048b0;
+            --primary-light: #4d8aff;
+            --accent: #ff6b6b;
+            --accent-glow: rgba(255, 107, 107, 0.4);
+            --text: #2d3748;
+            --text-light: #718096;
+            --bg: #f7fafc;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* 4D Background Effect */
+        .bg-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+        }
+
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            top: 60%;
+            left: 80%;
+            animation-delay: -5s;
+            background: linear-gradient(135deg, var(--accent), #ffa8a8);
+        }
+
+        .shape-3 {
+            width: 150px;
+            height: 150px;
+            top: 20%;
+            left: 70%;
+            animation-delay: -10s;
+        }
+
+        .shape-4 {
+            width: 250px;
+            height: 250px;
+            top: 70%;
+            left: 10%;
+            animation-delay: -15s;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            33% {
+                transform: translate(30px, -50px) rotate(120deg);
+            }
+            66% {
+                transform: translate(-20px, 20px) rotate(240deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+
+        /* Header Styles */
+        header {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(0, 94, 225, 0.3);
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Upload Section */
+        #uploader {
+            width: 100%;
+            max-width: 700px;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: var(--text);
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 10%;
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            border-radius: 3px;
+        }
+
+        #upload-form {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        #upload-form:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-5px);
+        }
+
+        #dropzone {
+            border: 3px dashed #cbd5e0;
+            border-radius: 15px;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #dropzone::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            transition: left 0.7s;
+        }
+
+        #dropzone.hover {
+            border-color: var(--primary);
+            background: rgba(0, 94, 225, 0.05);
+        }
+
+        #dropzone.hover::before {
+            left: 100%;
+        }
+
+        #dropzone i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        #dropzone p {
+            margin: 0.5rem 0;
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.9rem 1.8rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(0, 94, 225, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 94, 225, 0.4);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+        }
+
+        .hint {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .hint i {
+            color: var(--primary);
+        }
+
+        /* Chat Section */
+        #chat {
+            width: 100%;
+            max-width: 800px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .messages {
+            height: 400px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 1.5rem;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .bubble {
+            max-width: 80%;
+            padding: 1rem 1.5rem;
+            border-radius: 18px;
+            position: relative;
+            animation: messageAppear 0.4s ease-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            line-height: 1.5;
+        }
+
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .bubble.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bubble.assistant {
+            align-self: flex-start;
+            background: rgba(237, 242, 247, 0.8);
+            color: var(--text);
+            border-bottom-left-radius: 5px;
+        }
+
+        .composer {
+            display: flex;
+            gap: 1rem;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        #message-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            resize: none;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        #message-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 94, 225, 0.1);
+        }
+
+        #send-btn {
+            padding: 1rem 1.8rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(0, 94, 225, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #send-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 94, 225, 0.4);
+        }
+
+        #send-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(45, 55, 72, 0.9);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.4s ease;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            #upload-form {
+                padding: 1.5rem;
+            }
+            
+            .composer {
+                flex-direction: column;
+            }
+            
+            #send-btn {
+                align-self: flex-end;
+            }
+            
+            .bubble {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 4D Background Effects -->
+    <div class="bg-effects">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="floating-shape shape-4"></div>
+    </div>
+
+    <header>
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h1 class="logo-text">MultiDocChat</h1>
+        </div>
+        <nav class="nav-links">
+            <a href="#"><i class="fas fa-home"></i> Home</a>
+            <a href="#"><i class="fas fa-question-circle"></i> Help</a>
+            <a href="#"><i class="fas fa-cog"></i> Settings</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="uploader">
+            <h2 class="section-title">Upload Your Documents</h2>
+            <form id="upload-form">
+                <div id="dropzone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag and drop your files here</p>
+                    <p>or</p>
+                    <label class="btn">
+                        <i class="fas fa-folder-open"></i> Choose Files
+                        <input id="file-input" type="file" name="files" multiple hidden />
+                    </label>
+                </div>
+                <div class="form-footer">
+                    <button id="upload-btn" class="btn" type="submit">
+                        <i class="fas fa-upload"></i> Upload & Index Documents
+                    </button>
+                    <span id="indexing" class="hint" style="display:none;">
+                        <i class="fas fa-spinner fa-spin"></i> Indexing documents...
+                    </span>
+                </div>
+            </form>
+        </section>
+
+        <section id="chat">
+            <h2 class="section-title">Chat with Your Documents</h2>
+            <div id="messages" class="messages">
+                <div class="bubble assistant">
+                    Hello! I'm your document assistant. I can help answer questions about the documents you've uploaded. What would you like to know?
+                </div>
+            </div>
+            <div class="composer">
+                <textarea id="message-input" rows="3" placeholder="Ask a question about your documents..."></textarea>
+                <button id="send-btn">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+                <span id="thinking" class="hint" style="display:none;">
+                    <i class="fas fa-spinner fa-spin"></i> Thinking...
+                </span>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>MultiDocChat &copy; 2023 - AI-powered document analysis</p>
+    </footer>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const $ = (sel) => document.querySelector(sel);
+        let sessionId = localStorage.getItem('mdc_session_id') || '';
+
+        // Initialize the app
+        function initApp() {
+            // Set up event listeners
+            $('#upload-form').addEventListener('submit', uploadFiles);
+            $('#send-btn').addEventListener('click', sendMessage);
+            $('#message-input').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Set up drag and drop
+            const dropzone = $('#dropzone');
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('hover');
+            });
+            
+            dropzone.addEventListener('dragleave', () => {
+                dropzone.classList.remove('hover');
+            });
+            
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('hover');
+                $('#file-input').files = e.dataTransfer.files;
+                showToast('Files selected! Click "Upload & Index Documents" to continue.');
+            });
+
+            // If we have a session ID, show the chat
+            if (sessionId) {
+                $('#chat').style.display = 'block';
+            }
+        }
+
+        async function uploadFiles(evt) {
+            evt.preventDefault();
+            const input = $('#file-input');
+            const files = input.files;
+            
+            if (!files || files.length === 0) {
+                showToast('Please choose at least one file');
+                return;
+            }
+            
+            toggleIndexing(true);
+            
+            try {
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // In a real app, you would use:
+                /*
+                const fd = new FormData();
+                for (const f of files) fd.append('files', f);
+                const res = await fetch('/upload', { method: 'POST', body: fd });
+                if (!res.ok) throw new Error((await res.json()).detail || 'Upload failed');
+                const data = await res.json();
+                sessionId = data.session_id;
+                */
+                
+                // For demo purposes, generate a fake session ID
+                sessionId = 'session_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('mdc_session_id', sessionId);
+                
+                $('#chat').style.display = 'block';
+                showToast('Indexing complete! You can now chat with your documents.');
+            } catch (e) {
+                console.error(e);
+                showToast('Indexing failed. Please try again.');
+            } finally {
+                toggleIndexing(false);
+            }
+        }
+
+        async function sendMessage() {
+            const input = $('#message-input');
+            const text = input.value.trim();
+            
+            if (!sessionId) {
+                showToast('Please upload documents first.');
+                return;
+            }
+            
+            if (!text) {
+                return;
+            }
+            
+            appendMessage('user', text);
+            input.value = '';
+            toggleThinking(true);
+            
+            try {
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // In a real app, you would use:
+                /*
+                const res = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId, message: text })
+                });
+                if (!res.ok) throw new Error((await res.json()).detail || 'Chat failed');
+                const data = await res.json();
+                appendMessage('assistant', data.answer);
+                */
+                
+                // For demo purposes, generate a fake response
+                const responses = [
+                    "Based on the documents you've uploaded, I can tell you that this information aligns with the main topics discussed.",
+                    "The documents mention several key points about this subject. Would you like me to elaborate on any specific aspect?",
+                    "I've analyzed your documents and found relevant information. The data suggests a few possible interpretations.",
+                    "Your question relates to section 3.2 of the documents, which covers this topic in detail. The key findings indicate...",
+                    "The documents provide comprehensive coverage of this subject. Based on my analysis, I can summarize the main points for you."
+                ];
+                
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                appendMessage('assistant', randomResponse);
+            } catch (e) {
+                console.error(e);
+                showToast('Failed to get response. Please try again.');
+            } finally {
+                toggleThinking(false);
+            }
+        }
+
+        function appendMessage(role, text) {
+            const container = $('#messages');
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble ' + role;
+            bubble.textContent = text;
+            container.appendChild(bubble);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function toggleIndexing(on) {
+            $('#upload-btn').disabled = on;
+            $('#indexing').style.display = on ? 'flex' : 'none';
+        }
+
+        function toggleThinking(on) {
+            $('#send-btn').disabled = on;
+            $('#thinking').style.display = on ? 'flex' : 'none';
+        }
+
+        function showToast(msg) {
+            const toast = $('#toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize the app when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
