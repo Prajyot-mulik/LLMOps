@@ -1,0 +1,16 @@
+embedding_model:
+  provider: "openrouter"
+  model_name: "qwen/qwen3-embedding-0.6b"
+
+retriever:
+  top_k: 10
+  search_type: "mmr"
+  fetch_k: 20
+  lambda_mult: 0.5
+
+llm:
+  openrouter:
+    provider: "openrouter"
+    model_name: "nvidia/nemotron-nano-12b-v2-vl:free"
+    temperature: 0
+    max_output_tokens: 2048

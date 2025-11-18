@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Sync dependencies with uv (locked)
+        run: |
+          uv sync --frozen
+
+      - name: Run main.py sanity check
+        env:
+          PYTHONPATH: ${{ github.workspace }}/multi_doc_chat
+          OPENROUTER_API_KEY: dummy
+          LLM_PROVIDER: openrouter
+        run: |
+          # Just check that main.py imports and starts without crashing
+          python -m py_compile main.py
+          # Optionally run FastAPI app for a few seconds to ensure startup works
+          uv run python main.py &
+          sleep 10
+          pkill -f "python main.py"

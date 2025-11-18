@@ -1,0 +1,274 @@
+:root {
+  color-scheme: light dark;
+  --primary: #4f46e5;
+  --surface: #171726;
+  --surface-light: #24243a;
+}
+
+/* GLOBAL */
+* {
+  box-sizing: border-box;
+  transform-style: preserve-3d;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system;
+  background: linear-gradient(145deg, #0a0a14, #171726);
+  color: #e9e9f5;
+  perspective: 1500px;
+  overflow-x: hidden;
+  opacity: 0;
+  animation: pageFadeIn 1.4s ease forwards;
+}
+
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================
+      HEADER (3D LIFT)
+============================ */
+header {
+  padding: 16px;
+  border-bottom: 1px solid #2b2b40;
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(12px);
+  text-align: center;
+  animation: headerFloat 5.5s ease-in-out infinite alternate;
+}
+
+@keyframes headerFloat {
+  from { transform: translateZ(10px) rotateX(0deg); }
+  to   { transform: translateZ(55px) rotateX(4deg); }
+}
+
+/* ============================
+        MAIN CONTAINER
+============================ */
+main {
+  max-width: 880px;
+  margin: 30px auto;
+  padding: 0 16px;
+  opacity: 0;
+  animation: mainRise 1s ease-out forwards 0.4s;
+}
+
+@keyframes mainRise {
+  from { transform: translateY(50px) rotateX(18deg); opacity: 0; }
+  to   { transform: translateY(0) rotateX(0deg); opacity: 1; }
+}
+
+/* ============================
+          DROPZONE
+============================ */
+#dropzone {
+  border: 2px dashed #3d3d55;
+  border-radius: 18px;
+  padding: 40px;
+  text-align: center;
+  margin-bottom: 14px;
+  background: #1a1a29;
+  cursor: pointer;
+  transition: 0.35s ease;
+  position: relative;
+  overflow: hidden;
+  animation: cardFloat 6s ease-in-out infinite alternate;
+}
+
+@keyframes cardFloat {
+  from { transform: translateZ(14px); }
+  to   { transform: translateZ(45px); }
+}
+
+/* Hover 3D tilt */
+#dropzone:hover {
+  transform: rotateX(12deg) rotateY(-10deg) translateZ(30px) scale(1.03);
+  border-color: var(--primary);
+}
+
+/* Animated pulse ring */
+#dropzone::before {
+  content: "";
+  position: absolute;
+  width: 180%;
+  height: 180%;
+  background: radial-gradient(circle, rgba(255,255,255,0.06), transparent 75%);
+  top: -40%;
+  left: -40%;
+  opacity: 0;
+  transform: scale(0.3);
+  transition: 0.35s ease;
+}
+
+#dropzone:hover::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Dragging Effect */
+#dropzone.hover {
+  border-color: var(--primary);
+  background: #222236;
+  transform: scale(1.06) rotateX(15deg);
+}
+
+/* ============================
+          BUTTONS
+============================ */
+.btn,
+button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 0;
+  cursor: pointer;
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+  transition: 0.28s ease;
+  transform: translateZ(20px);
+  position: relative;
+  overflow: hidden;
+}
+
+/* button hover ripple */
+.btn::after,
+button::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  background: rgba(255,255,255,0.25);
+  border-radius: 50%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: width .4s ease, height .4s ease;
+}
+
+.btn:hover::after,
+button:hover::after {
+  width: 240px;
+  height: 240px;
+}
+
+.btn:hover,
+button:hover {
+  transform: translateZ(45px) rotateX(8deg) scale(1.04);
+}
+
+/* Locked buttons */
+button:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ============================
+        CHAT MESSAGES
+============================ */
+.messages {
+  height: 420px;
+  border: 1px solid #2f2f45;
+  border-radius: 14px;
+  padding: 14px;
+  overflow: auto;
+  background: #141422;
+  animation: panelSlowFloat 7s ease-in-out infinite alternate;
+}
+
+@keyframes panelSlowFloat {
+  from { transform: translateZ(10px) rotateX(0deg); }
+  to   { transform: translateZ(40px) rotateX(3deg); }
+}
+
+/* Chat bubbles */
+.bubble {
+  max-width: 78%;
+  padding: 12px 16px;
+  margin: 12px 0;
+  border-radius: 14px;
+  white-space: pre-wrap;
+  transform: translateZ(0);
+  transition: transform 0.2s ease, opacity .2s;
+  opacity: 0;
+  animation: bubblePop 0.45s ease forwards;
+}
+
+@keyframes bubblePop {
+  from { transform: scale(.85) translateY(10px); opacity: 0; }
+  to   { transform: scale(1)  translateY(0); opacity: 1; }
+}
+
+.bubble:hover {
+  transform: translateZ(55px) rotateX(8deg) scale(1.03);
+}
+
+/* User bubble */
+.bubble.user {
+  margin-left: auto;
+  background: var(--primary);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+/* Assistant bubble */
+.bubble.assistant {
+  margin-right: auto;
+  background: #24243a;
+  color: #dcdcf5;
+  border-bottom-left-radius: 4px;
+}
+
+/* ============================
+       COMPOSER AREA
+============================ */
+.composer {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  align-items: center;
+  animation: composerLift 1.5s ease-out forwards;
+}
+
+@keyframes composerLift {
+  from { transform: translateY(60px) rotateX(12deg); opacity: 0; }
+  to   { transform: translateY(0) rotateX(0deg); opacity: 1; }
+}
+
+#message-input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #323252;
+  background: #1a1a29;
+  color: #fff;
+  transition: 0.25s ease;
+}
+
+#message-input:focus {
+  border-color: var(--primary);
+  transform: translateZ(35px) scale(1.03);
+}
+
+/* ============================
+              TOAST
+============================ */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%) translateZ(40px);
+  background: #1a1a29;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateZ(65px);
+}
