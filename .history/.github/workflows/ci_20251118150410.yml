@@ -1,13 +1,11 @@
 name: CI/CD to ECS Fargate
+
 on:
-  workflow_run:
-    workflows: ["CI"] # Must match the "name" field in ci.yml
-    branches:
-      - main
-      - DeployOnAWS
-    types:
-      - completed
-  workflow_call:
+  push:
+    branches: [ main, DeployOnAWS ]
+  pull_request:
+    branches: [ main, DeployOnAWS ]
+
 env:
   AWS_REGION: eu-north-1
   ECR_REPOSITORY: llmopsrepolive
@@ -22,44 +20,53 @@ permissions:
   contents: read
 
 jobs:
-  check-status:
+  # -------------------------------
+  # 1. Run Tests (CI)
+  # -------------------------------
+  test:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push') }}
     steps:
-      - name: CI passed on main branch
-        run: echo "CI passed on main branch, proceeding to build and deploy."
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Dependencies
+        run: |
+          pip install uv
+          uv pip install --system -r requirements.txt
+
+      - name: Run Tests
+        run: pytest
 
   # -------------------------------
-  # 1. Build & Push Docker Image
+  # 2. Build & Push Docker Image
   # -------------------------------
   build-and-push:
-    name: Build & Push Docker Image
-    needs: [check-status]
+    needs: test
     runs-on: ubuntu-latest
     outputs:
       image: ${{ steps.build-image.outputs.image }}
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
+      - id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and Push Docker Image
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
@@ -70,27 +77,21 @@ jobs:
           echo "image=$IMAGE_URI" >> $GITHUB_OUTPUT
 
   # -------------------------------
-  # 2. Deploy to ECS
+  # 3. Deploy to ECS
   # -------------------------------
   deploy:
-    name: Deploy to ECS Fargate
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Render Task Definition
-        id: render-task
+      - id: render-task
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ${{ env.ECS_TASK_DEFINITION }}
@@ -99,16 +100,13 @@ jobs:
           environment-variables: |
             OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}
 
-      - name: Print Rendered Task
-        run: cat ${{ steps.render-task.outputs.task-definition }}
+      - run: cat ${{ steps.render-task.outputs.task-definition }}
 
-      - name: Deploy to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      - uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.render-task.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
 
-      - name: Done!
-        run: echo "Deployed to ECS Fargate Successfully"
+      - run: echo "Deployed to ECS Fargate Successfully"
