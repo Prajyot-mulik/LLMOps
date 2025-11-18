@@ -31,6 +31,7 @@
             "name": "apikeyliveclass",
             "valueFrom": "arn:aws:secretsmanager:eu-north-1:019922908355:secret:apikeyliveclass-SeF285"
           }
+  
         ],
         "logConfiguration": {
           "logDriver": "awslogs",
@@ -43,4 +44,5 @@
         }
       }
     ]
-}
+  }
+  
