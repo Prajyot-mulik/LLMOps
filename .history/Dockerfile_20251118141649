@@ -5,10 +5,7 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV ENV=production
-
-# Accept secret as build ARG (from GitHub Actions)
-ARG OPENROUTER_API_KEY
-ENV OPENROUTER_API_KEY=$OPENROUTER_API_KEY
+ENV OPENROUTER_API_KEY="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"
 
 # Set workdir
 WORKDIR /app
@@ -34,9 +31,6 @@ RUN uv pip install --system -r requirements.txt
 
 # Copy project files
 COPY . .
-
-# ✅ Copy .env file if present (local dev only)
-COPY .env .env
 
 # Create necessary directories (if they don't exist)
 RUN mkdir -p logs faiss_index

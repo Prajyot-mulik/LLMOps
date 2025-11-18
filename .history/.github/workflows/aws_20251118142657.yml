@@ -15,8 +15,6 @@ env:
   ECS_CLUSTER: llmops-live-cluster
   ECS_TASK_DEFINITION: .github/workflows/task_defination.json
   CONTAINER_NAME: llmops-live-container
-  # ✅ Add OpenRouter secret reference here
-  OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
 permissions:
   id-token: write
@@ -64,10 +62,7 @@ jobs:
         run: |
           IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
-          # ✅ Pass OpenRouter secret into Docker build
-          docker build \
-            --build-arg OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }} \
-            -t $IMAGE_URI .
+          docker build -t $IMAGE_URI .
           docker push $IMAGE_URI
           echo "image=$IMAGE_URI" >> $GITHUB_OUTPUT
 
@@ -98,13 +93,8 @@ jobs:
           task-definition: ${{ env.ECS_TASK_DEFINITION }}
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ needs.build-and-push.outputs.image }}
-          # ✅ Inject OpenRouter secret into ECS task definition
-          environment-variables: |
-            OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}
-
       - name: Print Rendered Task
         run: cat ${{ steps.render-task.outputs.task-definition }}
-
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
@@ -112,6 +102,5 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
-
       - name: Done!
         run: echo "Deployed to ECS Fargate Successfully"

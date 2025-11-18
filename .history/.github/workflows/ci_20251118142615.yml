@@ -31,8 +31,7 @@ jobs:
       - name: Run main.py sanity check
         env:
           PYTHONPATH: ${{ github.workspace }}/multi_doc_chat
-          # ✅ Use GitHub secret instead of dummy
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_API_KEY: dummy
           LLM_PROVIDER: openrouter
         run: |
           # Just check that main.py compiles
