@@ -1,14 +1,14 @@
 {
     "family": "llmopstdlive",
     "networkMode": "awsvpc",
-    "executionRoleArn": "arn:aws:ecs:eu-north-1:019922908355:cluster/llmops-live-cluster",
+    "executionRoleArn": "arn:aws:iam::019922908355:user/llmops-live",
     "requiresCompatibilities": ["FARGATE"],
     "cpu": "1024",
     "memory": "8192",
     "containerDefinitions": [
       {
         "name": "llmops-live-container",
-        "image": "019922908355.dkr.ecr.eu-north-1.amazonaws.com/llmopsrepolive",
+        "image": "arn:aws:ecs:eu-north-1:019922908355:cluster/llmops-live-cluster",
         "cpu": 1024,
         "essential": true,
         "portMappings": [
